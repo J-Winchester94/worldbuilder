@@ -18,7 +18,10 @@ function CharacterCard({ name, role, description, onDelete }) {
 }
 
 function App() {
-  const [characters, setCharacters] = useState(sampleCharacters);
+  const [characters, setCharacters] = useState(() => {
+    const saved = localStorage.getItem("characters");
+    return saved ? JSON.parse(saved) : sampleCharacters;
+  });
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [description, setDescription] = useState("");
