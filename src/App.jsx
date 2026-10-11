@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 const sampleCharacters = [
@@ -22,9 +22,14 @@ function App() {
     const saved = localStorage.getItem("characters");
     return saved ? JSON.parse(saved) : sampleCharacters;
   });
+
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("characters", JSON.stringify(characters));
+  }, [characters])
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -35,13 +40,13 @@ function App() {
     setDescription("");
   }
 
+  
   function deleteCharacter(id) {
-    function deleteCharacter(id) {
-      if (confirm("Delete this character?")) {
-        setCharacters(characters.filter((character) => character.id !== id));
-      }
+    if (confirm("Delete this character?")) {
+      setCharacters(characters.filter((character) => character.id !== id));
     }
   }
+  
 
   return (
     <main>
