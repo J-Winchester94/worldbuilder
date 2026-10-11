@@ -6,12 +6,13 @@ const sampleCharacters = [
   { id: 2, name: "Moiraine", role: "Mentor", description: "An Aes Sedai who guides the group." },
 ];
 
-function CharacterCard({ name, role, description }) {
+function CharacterCard({ name, role, description, onDelete }) {
   return (
     <article className="character-card">
       <h2>{name}</h2>
       <p className="role">{role}</p>
       <p>{description}</p>
+      <button onClick={onDelete}>Delete</button>
     </article>
   );
 }
@@ -29,6 +30,14 @@ function App() {
     setName("");
     setRole("");
     setDescription("");
+  }
+
+  function deleteCharacter(id) {
+    function deleteCharacter(id) {
+      if (confirm("Delete this character?")) {
+        setCharacters(characters.filter((character) => character.id !== id));
+      }
+    }
   }
 
   return (
@@ -55,6 +64,7 @@ function App() {
           name={character.name}
           role={character.role}
           description={character.description}
+          onDelete={() => deleteCharacter(character.id)}
         />
       ))}
     </main>
