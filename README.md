@@ -1,16 +1,28 @@
-# React + Vite
+# Worldbuilder App
+This app allows authors to enter and keep track of information about their characters, locations and factions.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[Live site](https://j-winchester94.github.io/worldbuilder/)
 
-Currently, two official plugins are available:
+![Screenshot of Worldbuilder App](screenshot.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+- Uses localStorage to save entries that the user inputs
+- Allows users to add new characters, locations, and factions using a form.
+- Page updates when users add information
+- Asks users to confirm if they wish to delete an entry
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Built with
+- HTML5
+- CSS
+- React
+- localStorage
+- Vite
 
-## Expanding the ESLint configuration
+## What I learned
+Learning React was an interesting experience and introduced me to concepts such as using components and props with useState and useEffect to create forms and save information to local storage, refactoring repeated code into a shared component, and controlled forms.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Future improvements
+- Links that automatically update within a character bio that allows users to pull up relevant information. (Ex. character is from city)
+- A map creator and/or uploader that allows users to see their world and bring up relevant information when clicked on or hovered over
+- A feature that allows users to create a plot grid to help them map out their stories

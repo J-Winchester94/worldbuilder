@@ -48,6 +48,7 @@ button {
 
 button:hover{
   background-color: var(--accent-hover);
+  padding: gap 10px;
 }
 
 .delete-button {
