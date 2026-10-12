@@ -28,6 +28,10 @@ form {
   gap: 8px;
 }
 
+form button {
+  justify-self: start;
+}
+
 input, textarea {
   background-color: var(--card-color);
   color: var(--text-color);
