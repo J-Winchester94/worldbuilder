@@ -4,7 +4,7 @@ export default function EntryCard ({ name, label, description, onDelete }) {
             <h2>{name}</h2>
             <p className="label">{label}</p>
             <p className="description">{description}</p>
-            <button onClick={onDelete}>Delete</button>
+            <button className="delete-button"onClick={onDelete}>Delete</button>
         </article>
     )
 }
