@@ -39,7 +39,7 @@ function App() {
 
   const [placeName, setPlaceName] = useState("");
   const [placeType, setPlaceType] = useState("");
-  const [placeDescription, setPlaceDescription] = useState("")
+  const [placeDescription, setPlaceDescription] = useState("");
 
   const [factionName, setFactionName] = useState("");
   const [factionLeader, setFactionLeader] = useState("");
