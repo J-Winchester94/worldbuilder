@@ -103,12 +103,34 @@ function App() {
     }
   }
 
+  function updateCharacter(id, updated) {
+    setCharacters(characters.map((character) =>
+      character.id === id
+        ? { ...character, name: updated.name, role: updated.label, description: updated.description }
+        : character
+    ));
+  }
+
+  function updatePlace(id, updated) {
+    setPlaces(places.map((place) =>
+      place.id === id
+        ? { ...place, name: updated.name, type: updated.label, description: updated.description }
+        : place
+    ));
+  }
+
+  function updateFaction(id, updated) {
+    setFactions(factions.map((faction) =>
+      faction.id === id
+        ? { ...faction, name: updated.name, leader: updated.label, description: updated.description }
+        : faction
+    ));
+  }
 
   return (
     <main>
       <h1>Worldbuilder</h1>
       <p>A companion for keeping track of your characters, places, and factions.</p>
-
 
       {/* Create forms */}
       <section className="entry-section">
@@ -130,10 +152,13 @@ function App() {
           {characters.map((character) => (
             <EntryCard
               key={character.id}
+              id={character.id}
               name={character.name}
               label={character.role}
+              labelName={"Role"}
               description={character.description}
               onDelete={() => deleteCharacter(character.id)}
+              onSave={(updated) => updateCharacter(character.id, updated)}
             />
           ))}
         </div>
@@ -158,10 +183,13 @@ function App() {
           {places.map((place) => (
             <EntryCard
               key={place.id}
+              id={place.id}
               name={place.name}
               label={place.type}
+              labelName="Type"
               description={place.description}
               onDelete={() => deletePlace(place.id)}
+              onSave={(updated) => updatePlace(place.id, updated)}
             />
           ))}
         </div>
@@ -186,10 +214,14 @@ function App() {
           {factions.map((faction) => (
             <EntryCard
               key={faction.id}
+              id={faction.id}
               name={faction.name}
               label={faction.leader}
+              labelName="Leader"
               description={faction.description}
               onDelete={() => deleteFaction(faction.id)}
+              onSave={(updated) => updateFaction(faction.id, updated)
+              }
             />
           ))}
         </div>
