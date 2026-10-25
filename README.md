@@ -10,6 +10,7 @@ This app allows authors to enter and keep track of information about their chara
 - Allows users to add new characters, locations, and factions using a form.
 - Page updates when users add information
 - Asks users to confirm if they wish to delete an entry
+- Edit any entry in place, with Save and Cancel options
 
 
 ## Built with
@@ -19,8 +20,12 @@ This app allows authors to enter and keep track of information about their chara
 - localStorage
 - Vite
 
-## What I learned
-Learning React was an interesting experience and introduced me to concepts such as using components and props with useState and useEffect to create forms and save information to local storage, refactoring repeated code into a shared component, and controlled forms.
+## What I learned 
+- How to use components and props with useState and useEffect to create forms and save information to local storage
+- How to refactor repeated code into a shared component, and controlled forms
+- How React's one-way data flow worls
+- Why props are read-only
+- Why key and id server different purposes
 
 ## Future improvements
 - Links that automatically update within a character bio that allows users to pull up relevant information. (Ex. character is from city)
