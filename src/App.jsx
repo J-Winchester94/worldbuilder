@@ -17,6 +17,12 @@ const sampleFactions = [
   { id: 2, name: "Darkfriends", leader: "The Dark One", description: "Those who side with the Dark One, seeking to unravel the Pattern." },
 ]
 
+const sampleLinks = [
+  {id: 1, fromType: "character", fromId: 1, toType:"place", toId: 1, label: "born in" },
+  {id: 2, fromType: "character", fromId: 2, toType: "faction", toId: 1, label: "member of" },
+  {id: 3, fromType: "character", fromId: 2, toType: "character", toId: 1, label: "mentor of" },
+];
+
 function App() {
   const [characters, setCharacters] = useState(() => {
     const savedCharacters = localStorage.getItem("characters");
@@ -50,7 +56,11 @@ function App() {
   const [factionDescription, setFactionDescription] = useState("");
   const [factionDetails, setFactionDetails] = useState("");
   const [factionImage, setFactionImage] = useState("");
-  
+
+  const [links, setLinks] = useState(() => {
+    const savedLinks = localStorage.getItem("links");
+    return savedLinks ? JSON.parse(savedLinks) : sampleLinks;
+  });
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -64,6 +74,10 @@ function App() {
     localStorage.setItem("factions", JSON.stringify(factions));
   }, [factions])
 
+  useEffect(() => {
+    localStorage.setItem("links", JSON.stringify(links));
+  }, [links])
+
   function addCharacter(event) {
     event.preventDefault();
     const newCharacter = { id: Date.now(), name, role, description, details: characterDetails, image: characterImage };
@@ -72,6 +86,7 @@ function App() {
     setRole("");
     setDescription("");
     setCharacterDetails("");
+    setCharacterImage("");
   }
 
 
@@ -83,12 +98,13 @@ function App() {
 
   function addPlace(event) {
     event.preventDefault();
-    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription, image: placeImage };
+    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription, details: placeDetails, image: placeImage };
     setPlaces([...places, newPlace]);
     setPlaceName("");
     setPlaceType("");
     setPlaceDescription("");
     setPlaceDetails("");
+    setPlaceImage("");
   }
 
   function deletePlace(id) {
@@ -99,12 +115,13 @@ function App() {
 
   function addFaction(event) {
     event.preventDefault();
-    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription, image: factionImage };
+    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription, details: factionDetails, image: factionImage };
     setFactions([...factions, newFaction]);
     setFactionName("");
     setFactionLeader("");
     setFactionDescription("");
     setFactionDetails("");
+    setFactionImage("");
   }
 
   function deleteFaction(id) {
@@ -199,7 +216,7 @@ function App() {
           <textarea id="placeDetails" value={placeDetails} onChange={(event) => setPlaceDetails(event.target.value)} />
 
           <label htmlFor="placeImage">Image link</label>
-          <input type="url" id="placeImage" value={placeImage} onChange={(event) => setPlaceImage(event.targaet.value)} />
+          <input type="url" id="placeImage" value={placeImage} onChange={(event) => setPlaceImage(event.target.value)} />
 
           <button type="submit">Add place</button>
         </form>
