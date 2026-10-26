@@ -36,14 +36,21 @@ function App() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [description, setDescription] = useState("");
+  const [characterDetails, setCharacterDetails] = useState("");
+  const [characterImage, setCharacterImage] = useState("");
 
   const [placeName, setPlaceName] = useState("");
   const [placeType, setPlaceType] = useState("");
   const [placeDescription, setPlaceDescription] = useState("");
+  const [placeDetails, setPlaceDetails] = useState("");
+  const [placeImage, setPlaceImage] = useState("");
 
   const [factionName, setFactionName] = useState("");
   const [factionLeader, setFactionLeader] = useState("");
   const [factionDescription, setFactionDescription] = useState("");
+  const [factionDetails, setFactionDetails] = useState("");
+  const [factionImage, setFactionImage] = useState("");
+  
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -59,11 +66,12 @@ function App() {
 
   function addCharacter(event) {
     event.preventDefault();
-    const newCharacter = { id: Date.now(), name, role, description };
+    const newCharacter = { id: Date.now(), name, role, description, details: characterDetails, image: characterImage };
     setCharacters([...characters, newCharacter]);
     setName("");
     setRole("");
     setDescription("");
+    setCharacterDetails("");
   }
 
 
@@ -75,11 +83,12 @@ function App() {
 
   function addPlace(event) {
     event.preventDefault();
-    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription };
+    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription, image: placeImage };
     setPlaces([...places, newPlace]);
     setPlaceName("");
     setPlaceType("");
     setPlaceDescription("");
+    setPlaceDetails("");
   }
 
   function deletePlace(id) {
@@ -90,11 +99,12 @@ function App() {
 
   function addFaction(event) {
     event.preventDefault();
-    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription };
+    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription, image: factionImage };
     setFactions([...factions, newFaction]);
     setFactionName("");
     setFactionLeader("");
     setFactionDescription("");
+    setFactionDetails("");
   }
 
   function deleteFaction(id) {
@@ -106,7 +116,7 @@ function App() {
   function updateCharacter(id, updated) {
     setCharacters(characters.map((character) =>
       character.id === id
-        ? { ...character, name: updated.name, role: updated.label, description: updated.description }
+        ? { ...character, name: updated.name, role: updated.label, description: updated.description, details: updated.details, image: updated.image }
         : character
     ));
   }
@@ -114,7 +124,7 @@ function App() {
   function updatePlace(id, updated) {
     setPlaces(places.map((place) =>
       place.id === id
-        ? { ...place, name: updated.name, type: updated.label, description: updated.description }
+        ? { ...place, name: updated.name, type: updated.label, description: updated.description, details: updated.details, image: updated.image }
         : place
     ));
   }
@@ -122,7 +132,7 @@ function App() {
   function updateFaction(id, updated) {
     setFactions(factions.map((faction) =>
       faction.id === id
-        ? { ...faction, name: updated.name, leader: updated.label, description: updated.description }
+        ? { ...faction, name: updated.name, leader: updated.label, description: updated.description, details: updated.details, image: updated.image }
         : faction
     ));
   }
@@ -146,6 +156,12 @@ function App() {
           <label htmlFor="description">Description</label>
           <textarea id="description" value={description} onChange={(event) => setDescription(event.target.value)} required />
 
+          <label htmlFor="characterDetails">Appearance</label>
+          <textarea id="characterDetails" value={characterDetails} onChange={(event) => setCharacterDetails(event.target.value)} />
+
+          <label htmlFor="characterImage">Image link</label>
+          <input type="url" id="characterImage" value={characterImage} onChange={(event) => setCharacterImage(event.target.value)} />
+
           <button type="submit">Add character</button>
         </form>
         <div className="card-grid">
@@ -157,6 +173,9 @@ function App() {
               label={character.role}
               labelName={"Role"}
               description={character.description}
+              details={character.details}
+              detailsName={"Appearance"}
+              image={character.image}
               onDelete={() => deleteCharacter(character.id)}
               onSave={(updated) => updateCharacter(character.id, updated)}
             />
@@ -176,6 +195,12 @@ function App() {
           <label htmlFor="placeDescription">Description</label>
           <textarea id="placeDescription" value={placeDescription} onChange={(event) => setPlaceDescription(event.target.value)} required></textarea>
 
+          <label htmlFor="placeDetails">Landscape</label>
+          <textarea id="placeDetails" value={placeDetails} onChange={(event) => setPlaceDetails(event.target.value)} />
+
+          <label htmlFor="placeImage">Image link</label>
+          <input type="url" id="placeImage" value={placeImage} onChange={(event) => setPlaceImage(event.targaet.value)} />
+
           <button type="submit">Add place</button>
         </form>
 
@@ -186,8 +211,11 @@ function App() {
               id={place.id}
               name={place.name}
               label={place.type}
-              labelName="Type"
+              labelName={"Type"}
               description={place.description}
+              details={place.details}
+              detailsName={"Landscape"}
+              image={place.image}
               onDelete={() => deletePlace(place.id)}
               onSave={(updated) => updatePlace(place.id, updated)}
             />
@@ -207,6 +235,12 @@ function App() {
           <label htmlFor="factionDescription">Description</label>
           <textarea id="factionDescription" value={factionDescription} onChange={(event) => setFactionDescription(event.target.value)} required></textarea>
 
+          <label htmlFor="factionDetails">Symbols & Colors</label>
+          <textarea id="factionDetails" value={factionDetails} onChange={(event) => setFactionDetails(event.target.value)} />
+          
+          <label htmlFor="factionImage">Image link</label>
+          <input type="url" id="factionImage" value={factionImage} onChange={(event) => setFactionImage(event.target.value)} />
+
           <button type="submit">Add faction</button>
         </form>
 
@@ -217,8 +251,11 @@ function App() {
               id={faction.id}
               name={faction.name}
               label={faction.leader}
-              labelName="Leader"
+              labelName={"Leader"}
               description={faction.description}
+              details={faction.details}
+              detailsName={"Symbols & Colors"}
+              image={faction.image}
               onDelete={() => deleteFaction(faction.id)}
               onSave={(updated) => updateFaction(faction.id, updated)
               }
