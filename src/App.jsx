@@ -18,9 +18,9 @@ const sampleFactions = [
 ]
 
 const sampleLinks = [
-  {id: 1, fromType: "character", fromId: 1, toType:"place", toId: 1, label: "born in" },
-  {id: 2, fromType: "character", fromId: 2, toType: "faction", toId: 1, label: "member of" },
-  {id: 3, fromType: "character", fromId: 2, toType: "character", toId: 1, label: "mentor of" },
+  { id: 1, fromType: "character", fromId: 1, toType: "place", toId: 1, label: "born in" },
+  { id: 2, fromType: "character", fromId: 2, toType: "faction", toId: 1, label: "member of" },
+  { id: 3, fromType: "character", fromId: 2, toType: "character", toId: 1, label: "mentor of" },
 ];
 
 function App() {
@@ -61,6 +61,8 @@ function App() {
     const savedLinks = localStorage.getItem("links");
     return savedLinks ? JSON.parse(savedLinks) : sampleLinks;
   });
+
+  const linkOptions={ character: characters, place: places, faction: factions };
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -154,6 +156,36 @@ function App() {
     ));
   }
 
+  function getEntry(type, id) {
+    const lists = { character: characters, place: places, faction: factions };
+    return lists[type]?.find((entry) => entry.id === id);
+  }
+
+  function getLinkTexts(type, id) {
+    return links.filter((link) =>
+      (link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id)
+    )
+    .map((link) => {
+      const isFrom = link.fromType === type && link.fromId === id;
+      const other = isFrom
+        ? getEntry(link.toType, link.toId)
+        : getEntry(link.fromType, link.fromId);
+      const otherName = other ? other.name : "Unknown";
+      return isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`;
+    });
+  }
+
+  function addLink(fromType, fromId, target) {
+    const newLink = {
+      id: Date.now(),
+      fromType: fromType,
+      fromId: fromId,
+      toType: target.toType,
+      toId: target.toId,
+      label: target.label,
+    };
+    setLinks([...links, newLink]);
+  }
   return (
     <main>
       <h1>Worldbuilder</h1>
@@ -193,8 +225,11 @@ function App() {
               details={character.details}
               detailsName={"Appearance"}
               image={character.image}
+              links={getLinkTexts("character", character.id)}
+              linkOptions={linkOptions}
               onDelete={() => deleteCharacter(character.id)}
               onSave={(updated) => updateCharacter(character.id, updated)}
+              onAddLink={(target) => addLink("character", character.id, target)}
             />
           ))}
         </div>
@@ -210,7 +245,7 @@ function App() {
           <input id="placeType" value={placeType} onChange={(event) => setPlaceType(event.target.value)} required />
 
           <label htmlFor="placeDescription">Description</label>
-          <textarea id="placeDescription" value={placeDescription} onChange={(event) => setPlaceDescription(event.target.value)} required></textarea>
+          <textarea id="placeDescription" value={placeDescription} onChange={(event) => setPlaceDescription(event.target.value)} required />
 
           <label htmlFor="placeDetails">Landscape</label>
           <textarea id="placeDetails" value={placeDetails} onChange={(event) => setPlaceDetails(event.target.value)} />
@@ -233,8 +268,11 @@ function App() {
               details={place.details}
               detailsName={"Landscape"}
               image={place.image}
+              links={getLinkTexts("place", place.id)}
+              linkOptions={linkOptions}
               onDelete={() => deletePlace(place.id)}
               onSave={(updated) => updatePlace(place.id, updated)}
+              onAddLink={(target) => addLink("place", place.id, target)}
             />
           ))}
         </div>
@@ -250,11 +288,11 @@ function App() {
           <input id="factionLeader" value={factionLeader} onChange={(event) => setFactionLeader(event.target.value)} required />
 
           <label htmlFor="factionDescription">Description</label>
-          <textarea id="factionDescription" value={factionDescription} onChange={(event) => setFactionDescription(event.target.value)} required></textarea>
+          <textarea id="factionDescription" value={factionDescription} onChange={(event) => setFactionDescription(event.target.value)} required />
 
           <label htmlFor="factionDetails">Symbols & Colors</label>
           <textarea id="factionDetails" value={factionDetails} onChange={(event) => setFactionDetails(event.target.value)} />
-          
+
           <label htmlFor="factionImage">Image link</label>
           <input type="url" id="factionImage" value={factionImage} onChange={(event) => setFactionImage(event.target.value)} />
 
@@ -273,16 +311,17 @@ function App() {
               details={faction.details}
               detailsName={"Symbols & Colors"}
               image={faction.image}
+              links={getLinkTexts("faction", faction.id)}
+              linkOptions={linkOptions}
               onDelete={() => deleteFaction(faction.id)}
-              onSave={(updated) => updateFaction(faction.id, updated)
-              }
+              onSave={(updated) => updateFaction(faction.id, updated)}
+              onAddLink={(target) => addLink("faction", faction.id, target)}
             />
           ))}
         </div>
       </section>
-      
+
     </main>
   );
 }
-
 export default App
