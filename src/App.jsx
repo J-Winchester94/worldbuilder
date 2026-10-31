@@ -95,6 +95,7 @@ function App() {
   function deleteCharacter(id) {
     if (confirm("Delete this character?")) {
       setCharacters(characters.filter((character) => character.id !== id));
+      removeLinksFor("character", id);
     }
   }
 
@@ -112,6 +113,7 @@ function App() {
   function deletePlace(id) {
     if (confirm("Delete this place?")) {
       setPlaces(places.filter((place) => place.id !== id));
+      removeLinksFor("place", id);
     }
   }
 
@@ -128,7 +130,8 @@ function App() {
 
   function deleteFaction(id) {
     if (confirm("Delete this faction?")) {
-      setFactions(factions.filter((faction) => faction.id !== id))
+      setFactions(factions.filter((faction) => faction.id !== id));
+      removeLinksFor("faction", id);
     }
   }
 
@@ -171,7 +174,10 @@ function App() {
         ? getEntry(link.toType, link.toId)
         : getEntry(link.fromType, link.fromId);
       const otherName = other ? other.name : "Unknown";
-      return isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`;
+      return{
+        id: link.id, 
+        text: isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`,
+       }
     });
   }
 
@@ -186,6 +192,20 @@ function App() {
     };
     setLinks([...links, newLink]);
   }
+
+  function removeLink(id) {
+    if (confirm("Would you like to remove this link?")) {
+      setLinks(links.filter((link) => link.id !== id));
+    }
+  }
+  
+  // Remove Every Link for a particular entry
+  function removeLinksFor(type, id) {
+    setLinks(links.filter((link) =>
+      !((link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id))
+    ))
+  }
+
   return (
     <main>
       <h1>Worldbuilder</h1>
@@ -230,6 +250,7 @@ function App() {
               onDelete={() => deleteCharacter(character.id)}
               onSave={(updated) => updateCharacter(character.id, updated)}
               onAddLink={(target) => addLink("character", character.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>
@@ -273,6 +294,7 @@ function App() {
               onDelete={() => deletePlace(place.id)}
               onSave={(updated) => updatePlace(place.id, updated)}
               onAddLink={(target) => addLink("place", place.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>
@@ -316,6 +338,7 @@ function App() {
               onDelete={() => deleteFaction(faction.id)}
               onSave={(updated) => updateFaction(faction.id, updated)}
               onAddLink={(target) => addLink("faction", faction.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>

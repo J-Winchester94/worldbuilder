@@ -1,5 +1,5 @@
 import { useState } from 'react'
-export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, onDelete, onSave, onAddLink }) {
+export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, linkOptions, onDelete, onSave, onAddLink, onRemoveLink }) {
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(name);
     const [draftLabel, setDraftLabel] = useState(label);
@@ -45,26 +45,30 @@ export default function EntryCard({ id, name, label, labelName, description, det
                     }}>Cancel</button>
                 </form>
             ) : (
-                <>  
+                <>
                     {image && <img src={image} alt={name} />}
                     <h3>{name}</h3>
                     <p className="label">{label}</p>
                     <p className="description">{description}</p>
                     {details && <p className="details">{detailsName}: {details} </p>}
-                    {links.length > 0 &&(
+                    {links.length > 0 && (
                         <ul className="links">
-                            {links.map((text, index) => <li key={index}>{text}</li>)}
+                            {links.map((link) => <li key={link.id}>{link.text}
+                                <button className="removeLink" onClick={() => {
+                                    onRemoveLink(link.id);
+                                }}>X</button>
+                            </li>)}
                         </ul>
                     )}
 
                     {isLinking && (
-                       <form className="link-form" onSubmit={(event) => {
+                        <form className="link-form" onSubmit={(event) => {
                             event.preventDefault();
-                            onAddLink({ toType: linkType, toId: Number(linkTargetId), label: linkLabel});
+                            onAddLink({ toType: linkType, toId: Number(linkTargetId), label: linkLabel });
                             setLinkTargetId("");
                             setLinkLabel("");
-                            setIsLinking("");
-                       }}>
+                            setIsLinking(false);
+                        }}>
                             <label htmlFor={`linkType-${id}`}>Link to: </label>
                             <select id={`linkType-${id}`} value={linkType} onChange={(event) => {
                                 setLinkType(event.target.value);
@@ -75,7 +79,7 @@ export default function EntryCard({ id, name, label, labelName, description, det
                                 <option value="faction">Faction</option>
                             </select>
 
-                            <select value={linkTargetId} onChange={(event) => setLinkTargetId(evemt.target.value)} required>
+                            <select value={linkTargetId} onChange={(event) => setLinkTargetId(event.target.value)} required>
                                 <option value="">Choose...</option>
                                 {linkOptions[linkType].map((entry) => (
                                     <option key={entry.id} value={entry.id}>{entry.name}</option>
@@ -83,10 +87,15 @@ export default function EntryCard({ id, name, label, labelName, description, det
                             </select>
 
                             <label htmlFor={`linkLabel-${id}`}>Relationship: </label>
-                       </form>
+                            <input id={`linkLabel-${id}`} value={linkLabel} onChange={(event) => setLinkLabel(event.target.value)} placeholder="born in, rival of..." required />
+
+                            <button type="submit">Add</button>
+                            <button type="button" onClick={() => setIsLinking(false)}>Cancel</button>
+                        </form>
                     )}
                     <button className="delete-button" onClick={onDelete}>Delete</button>
                     <button onClick={() => setIsEditing(true)}>Edit</button>
+                    <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
                 </>
             )}
         </article>
