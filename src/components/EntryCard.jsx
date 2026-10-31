@@ -32,17 +32,17 @@ export default function EntryCard({ id, name, label, labelName, description, det
 
                     <label htmlFor={`draftImage-${id}`}>Image link: </label>
                     <input type="url" id={`draftImage-${id}`} value={draftImage} onChange={(event) => setDraftImage(event.target.value)} />
-
-                    <button type="submit">Save</button>
-
-                    <button className="cancel-button" type="button" onClick={() => {
-                        setIsEditing(false);
-                        setDraftName(name);
-                        setDraftLabel(label);
-                        setDraftDescription(description);
-                        setDraftDetails(details || "");
-                        setDraftImage(image || "");
-                    }}>Cancel</button>
+                    <div className="card-actions">
+                        <button type="submit">Save</button>
+                        <button className="cancel-button" type="button" onClick={() => {
+                            setIsEditing(false);
+                            setDraftName(name);
+                            setDraftLabel(label);
+                            setDraftDescription(description);
+                            setDraftDetails(details || "");
+                            setDraftImage(image || "");
+                        }}>Cancel</button>
+                    </div>
                 </form>
             ) : (
                 <>
@@ -51,14 +51,18 @@ export default function EntryCard({ id, name, label, labelName, description, det
                     <p className="label">{label}</p>
                     <p className="description">{description}</p>
                     {details && <p className="details">{detailsName}: {details} </p>}
+
                     {links.length > 0 && (
-                        <ul className="links">
-                            {links.map((link) => <li key={link.id}>{link.text}
-                                <button className="removeLink" onClick={() => {
-                                    onRemoveLink(link.id);
-                                }}>X</button>
-                            </li>)}
-                        </ul>
+                        <>
+                            <h4>Relationships</h4>
+                            <ul className="links">
+                                {links.map((link) => <li key={link.id}>{link.text}
+                                    <button className="removeLink" onClick={() => {
+                                        onRemoveLink(link.id);
+                                    }}>X</button>
+                                </li>)}
+                            </ul>
+                        </>
                     )}
 
                     {isLinking && (
@@ -88,14 +92,20 @@ export default function EntryCard({ id, name, label, labelName, description, det
 
                             <label htmlFor={`linkLabel-${id}`}>Relationship: </label>
                             <input id={`linkLabel-${id}`} value={linkLabel} onChange={(event) => setLinkLabel(event.target.value)} placeholder="born in, rival of..." required />
-
+                            <div className="card-actions">
                             <button type="submit">Add</button>
-                            <button type="button" onClick={() => setIsLinking(false)}>Cancel</button>
+                            <button type="button" className="cancel-button" onClick={() => setIsLinking(false)}>Cancel</button>
+                            </div>
                         </form>
                     )}
-                    <button className="delete-button" onClick={onDelete}>Delete</button>
-                    <button onClick={() => setIsEditing(true)}>Edit</button>
-                    <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
+
+                    {!isLinking && (
+                        <div className="card-actions">
+                            <button onClick={() => setIsEditing(true)}>Edit</button>
+                            <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
+                            <button className="delete-button" onClick={onDelete}>Delete</button>
+                        </div>
+                    )}
                 </>
             )}
         </article>
