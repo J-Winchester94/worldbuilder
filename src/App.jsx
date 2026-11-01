@@ -17,6 +17,12 @@ const sampleFactions = [
   { id: 2, name: "Darkfriends", leader: "The Dark One", description: "Those who side with the Dark One, seeking to unravel the Pattern." },
 ]
 
+const sampleLinks = [
+  { id: 1, fromType: "character", fromId: 1, toType: "place", toId: 1, label: "born in" },
+  { id: 2, fromType: "character", fromId: 2, toType: "faction", toId: 1, label: "member of" },
+  { id: 3, fromType: "character", fromId: 2, toType: "character", toId: 1, label: "mentor of" },
+];
+
 function App() {
   const [characters, setCharacters] = useState(() => {
     const savedCharacters = localStorage.getItem("characters");
@@ -50,7 +56,13 @@ function App() {
   const [factionDescription, setFactionDescription] = useState("");
   const [factionDetails, setFactionDetails] = useState("");
   const [factionImage, setFactionImage] = useState("");
-  
+
+  const [links, setLinks] = useState(() => {
+    const savedLinks = localStorage.getItem("links");
+    return savedLinks ? JSON.parse(savedLinks) : sampleLinks;
+  });
+
+  const linkOptions={ character: characters, place: places, faction: factions };
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -64,6 +76,10 @@ function App() {
     localStorage.setItem("factions", JSON.stringify(factions));
   }, [factions])
 
+  useEffect(() => {
+    localStorage.setItem("links", JSON.stringify(links));
+  }, [links])
+
   function addCharacter(event) {
     event.preventDefault();
     const newCharacter = { id: Date.now(), name, role, description, details: characterDetails, image: characterImage };
@@ -72,44 +88,62 @@ function App() {
     setRole("");
     setDescription("");
     setCharacterDetails("");
+    setCharacterImage("");
   }
 
 
   function deleteCharacter(id) {
-    if (confirm("Delete this character?")) {
+    const entry = getEntry("character", id);
+    const linkCount = getLinksFor("character", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
+    if (confirm(message)) {
       setCharacters(characters.filter((character) => character.id !== id));
+      removeLinksFor("character", id);
     }
   }
 
   function addPlace(event) {
     event.preventDefault();
-    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription, image: placeImage };
+    const newPlace = { id: Date.now(), name: placeName, type: placeType, description: placeDescription, details: placeDetails, image: placeImage };
     setPlaces([...places, newPlace]);
     setPlaceName("");
     setPlaceType("");
     setPlaceDescription("");
     setPlaceDetails("");
+    setPlaceImage("");
   }
 
   function deletePlace(id) {
-    if (confirm("Delete this place?")) {
+    const entry = getEntry("place", id);
+    const linkCount = getLinksFor("place", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
+    if (confirm(message)) {
       setPlaces(places.filter((place) => place.id !== id));
+      removeLinksFor("place", id);
     }
   }
 
   function addFaction(event) {
     event.preventDefault();
-    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription, image: factionImage };
+    const newFaction = { id: Date.now(), name: factionName, leader: factionLeader, description: factionDescription, details: factionDetails, image: factionImage };
     setFactions([...factions, newFaction]);
     setFactionName("");
     setFactionLeader("");
     setFactionDescription("");
     setFactionDetails("");
+    setFactionImage("");
   }
 
   function deleteFaction(id) {
-    if (confirm("Delete this faction?")) {
-      setFactions(factions.filter((faction) => faction.id !== id))
+    const entry = getEntry("faction", id);
+    const linkCount = getLinksFor("faction", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
+    if (confirm(message)) {
+      setFactions(factions.filter((faction) => faction.id !== id));
+      removeLinksFor("faction", id);
     }
   }
 
@@ -135,6 +169,56 @@ function App() {
         ? { ...faction, name: updated.name, leader: updated.label, description: updated.description, details: updated.details, image: updated.image }
         : faction
     ));
+  }
+
+  function getEntry(type, id) {
+    const lists = { character: characters, place: places, faction: factions };
+    return lists[type]?.find((entry) => entry.id === id);
+  }
+
+  function getLinksFor(type, id) {
+    return links.filter((link) =>
+      ((link.fromType === type && link.fromId === id )|| (link.toType === type && link.toId === id)) 
+    );
+  }
+
+  function getLinkTexts(type, id) {
+      return getLinksFor(type, id).map((link) => {
+      const isFrom = link.fromType === type && link.fromId === id;
+      const other = isFrom
+        ? getEntry(link.toType, link.toId)
+        : getEntry(link.fromType, link.fromId);
+      const otherName = other ? other.name : "Unknown";
+      return{
+        id: link.id, 
+        text: isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`,
+       }
+    });
+  }
+
+  function addLink(fromType, fromId, target) {
+    const newLink = {
+      id: Date.now(),
+      fromType: fromType,
+      fromId: fromId,
+      toType: target.toType,
+      toId: target.toId,
+      label: target.label,
+    };
+    setLinks([...links, newLink]);
+  }
+
+  function removeLink(id) {
+    if (confirm("Would you like to remove this link?")) {
+      setLinks(links.filter((link) => link.id !== id));
+    }
+  }
+  
+  // Remove Every Link for a particular entry
+  function removeLinksFor(type, id) {
+    setLinks(links.filter((link) =>
+      !((link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id))
+    ))
   }
 
   return (
@@ -176,8 +260,12 @@ function App() {
               details={character.details}
               detailsName={"Appearance"}
               image={character.image}
+              links={getLinkTexts("character", character.id)}
+              linkOptions={linkOptions}
               onDelete={() => deleteCharacter(character.id)}
               onSave={(updated) => updateCharacter(character.id, updated)}
+              onAddLink={(target) => addLink("character", character.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>
@@ -193,13 +281,13 @@ function App() {
           <input id="placeType" value={placeType} onChange={(event) => setPlaceType(event.target.value)} required />
 
           <label htmlFor="placeDescription">Description</label>
-          <textarea id="placeDescription" value={placeDescription} onChange={(event) => setPlaceDescription(event.target.value)} required></textarea>
+          <textarea id="placeDescription" value={placeDescription} onChange={(event) => setPlaceDescription(event.target.value)} required />
 
           <label htmlFor="placeDetails">Landscape</label>
           <textarea id="placeDetails" value={placeDetails} onChange={(event) => setPlaceDetails(event.target.value)} />
 
           <label htmlFor="placeImage">Image link</label>
-          <input type="url" id="placeImage" value={placeImage} onChange={(event) => setPlaceImage(event.targaet.value)} />
+          <input type="url" id="placeImage" value={placeImage} onChange={(event) => setPlaceImage(event.target.value)} />
 
           <button type="submit">Add place</button>
         </form>
@@ -216,8 +304,12 @@ function App() {
               details={place.details}
               detailsName={"Landscape"}
               image={place.image}
+              links={getLinkTexts("place", place.id)}
+              linkOptions={linkOptions}
               onDelete={() => deletePlace(place.id)}
               onSave={(updated) => updatePlace(place.id, updated)}
+              onAddLink={(target) => addLink("place", place.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>
@@ -233,11 +325,11 @@ function App() {
           <input id="factionLeader" value={factionLeader} onChange={(event) => setFactionLeader(event.target.value)} required />
 
           <label htmlFor="factionDescription">Description</label>
-          <textarea id="factionDescription" value={factionDescription} onChange={(event) => setFactionDescription(event.target.value)} required></textarea>
+          <textarea id="factionDescription" value={factionDescription} onChange={(event) => setFactionDescription(event.target.value)} required />
 
           <label htmlFor="factionDetails">Symbols & Colors</label>
           <textarea id="factionDetails" value={factionDetails} onChange={(event) => setFactionDetails(event.target.value)} />
-          
+
           <label htmlFor="factionImage">Image link</label>
           <input type="url" id="factionImage" value={factionImage} onChange={(event) => setFactionImage(event.target.value)} />
 
@@ -256,16 +348,18 @@ function App() {
               details={faction.details}
               detailsName={"Symbols & Colors"}
               image={faction.image}
+              links={getLinkTexts("faction", faction.id)}
+              linkOptions={linkOptions}
               onDelete={() => deleteFaction(faction.id)}
-              onSave={(updated) => updateFaction(faction.id, updated)
-              }
+              onSave={(updated) => updateFaction(faction.id, updated)}
+              onAddLink={(target) => addLink("faction", faction.id, target)}
+              onRemoveLink={removeLink}
             />
           ))}
         </div>
       </section>
-      
+
     </main>
   );
 }
-
 export default App

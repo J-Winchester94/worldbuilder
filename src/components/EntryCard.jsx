@@ -1,11 +1,15 @@
 import { useState } from 'react'
-export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, onDelete, onSave}) {
+export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, linkOptions, onDelete, onSave, onAddLink, onRemoveLink }) {
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(name);
     const [draftLabel, setDraftLabel] = useState(label);
     const [draftDescription, setDraftDescription] = useState(description);
     const [draftDetails, setDraftDetails] = useState(details || "");
     const [draftImage, setDraftImage] = useState(image || "");
+    const [isLinking, setIsLinking] = useState(false);
+    const [linkType, setLinkType] = useState("character");
+    const [linkTargetId, setLinkTargetId] = useState("");
+    const [linkLabel, setLinkLabel] = useState("");
     return (
         <article className="entry-card">
             {isEditing ? (
@@ -28,26 +32,80 @@ export default function EntryCard({ id, name, label, labelName, description, det
 
                     <label htmlFor={`draftImage-${id}`}>Image link: </label>
                     <input type="url" id={`draftImage-${id}`} value={draftImage} onChange={(event) => setDraftImage(event.target.value)} />
-
-                    <button type="submit">Save</button>
-
-                    <button className="cancel-button" type="button" onClick={() => {
-                        setIsEditing(false);
-                        setDraftName(name);
-                        setDraftLabel(label);
-                        setDraftDescription(description);
-                        setDraftDetails(details || "");
-                    }}>Cancel</button>
+                    <div className="card-actions">
+                        <button type="submit">Save</button>
+                        <button className="cancel-button" type="button" onClick={() => {
+                            setIsEditing(false);
+                            setDraftName(name);
+                            setDraftLabel(label);
+                            setDraftDescription(description);
+                            setDraftDetails(details || "");
+                            setDraftImage(image || "");
+                        }}>Cancel</button>
+                    </div>
                 </form>
             ) : (
-                <>  
+                <>
                     {image && <img src={image} alt={name} />}
                     <h3>{name}</h3>
                     <p className="label">{label}</p>
                     <p className="description">{description}</p>
                     {details && <p className="details">{detailsName}: {details} </p>}
-                    <button className="delete-button" onClick={onDelete}>Delete</button>
-                    <button onClick={() => setIsEditing(true)}>Edit</button>
+
+                    {links.length > 0 && (
+                        <>
+                            <h4>Relationships</h4>
+                            <ul className="links">
+                                {links.map((link) => <li key={link.id}>{link.text}
+                                    <button className="removeLink" onClick={() => {
+                                        onRemoveLink(link.id);
+                                    }}>X</button>
+                                </li>)}
+                            </ul>
+                        </>
+                    )}
+
+                    {isLinking && (
+                        <form className="link-form" onSubmit={(event) => {
+                            event.preventDefault();
+                            onAddLink({ toType: linkType, toId: Number(linkTargetId), label: linkLabel });
+                            setLinkTargetId("");
+                            setLinkLabel("");
+                            setIsLinking(false);
+                        }}>
+                            <label htmlFor={`linkType-${id}`}>Link to: </label>
+                            <select id={`linkType-${id}`} value={linkType} onChange={(event) => {
+                                setLinkType(event.target.value);
+                                setLinkTargetId("");
+                            }}>
+                                <option value="character">Character</option>
+                                <option value="place">Place</option>
+                                <option value="faction">Faction</option>
+                            </select>
+
+                            <select value={linkTargetId} onChange={(event) => setLinkTargetId(event.target.value)} required>
+                                <option value="">Choose...</option>
+                                {linkOptions[linkType].map((entry) => (
+                                    <option key={entry.id} value={entry.id}>{entry.name}</option>
+                                ))}
+                            </select>
+
+                            <label htmlFor={`linkLabel-${id}`}>Relationship: </label>
+                            <input id={`linkLabel-${id}`} value={linkLabel} onChange={(event) => setLinkLabel(event.target.value)} placeholder="born in, rival of..." required />
+                            <div className="card-actions">
+                            <button type="submit">Add</button>
+                            <button type="button" className="cancel-button" onClick={() => setIsLinking(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    )}
+
+                    {!isLinking && (
+                        <div className="card-actions">
+                            <button onClick={() => setIsEditing(true)}>Edit</button>
+                            <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
+                            <button className="delete-button" onClick={onDelete}>Delete</button>
+                        </div>
+                    )}
                 </>
             )}
         </article>

@@ -31,3 +31,16 @@ main {
   border-radius: 6px;
 }
 
+.links {
+  border-top: 1px solid var(--border-color);
+  list-style: none;
+  padding: 0;
+  padding-top: 1em;
+}
+
+.links li {
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
