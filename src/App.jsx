@@ -94,8 +94,9 @@ function App() {
 
   function deleteCharacter(id) {
     const entry = getEntry("character", id);
-    const linkCount = links.filter((link) =>(link.fromType === "character" && link.fromId === id) || (link.toType === "character" && link.toId === id)).length;
-    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} relationships` : "");
+    const linkCount = getLinksFor("character", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
     if (confirm(message)) {
       setCharacters(characters.filter((character) => character.id !== id));
       removeLinksFor("character", id);
@@ -115,8 +116,9 @@ function App() {
 
   function deletePlace(id) {
     const entry = getEntry("place", id);
-    const linkCount = links.filter((link) =>(link.fromType === "place" && link.fromId === id) || (link.toType === "place" && link.toId === id)).length;
-    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} relationships` : "");
+    const linkCount = getLinksFor("place", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
     if (confirm(message)) {
       setPlaces(places.filter((place) => place.id !== id));
       removeLinksFor("place", id);
@@ -136,8 +138,9 @@ function App() {
 
   function deleteFaction(id) {
     const entry = getEntry("faction", id);
-    const linkCount = links.filter((link) =>(link.fromType === "faction" && link.fromId === id) || (link.toType === "faction" && link.toId === id)).length;
-    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} relationships` : "");
+    const linkCount = getLinksFor("faction", id).length;
+    const word = linkCount === 1 ? "relationship" : "relationships";
+    const message = `Delete ${entry.name}?` + (linkCount > 0 ? ` This will also remove ${linkCount} ${word}.` : "");
     if (confirm(message)) {
       setFactions(factions.filter((faction) => faction.id !== id));
       removeLinksFor("faction", id);
@@ -173,11 +176,14 @@ function App() {
     return lists[type]?.find((entry) => entry.id === id);
   }
 
-  function getLinkTexts(type, id) {
+  function getLinksFor(type, id) {
     return links.filter((link) =>
-      (link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id)
-    )
-    .map((link) => {
+      ((link.fromType === type && link.fromId === id )|| (link.toType === type && link.toId === id)) 
+    );
+  }
+
+  function getLinkTexts(type, id) {
+      return getLinksFor(type, id).map((link) => {
       const isFrom = link.fromType === type && link.fromId === id;
       const other = isFrom
         ? getEntry(link.toType, link.toId)
