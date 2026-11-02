@@ -16,6 +16,8 @@ This app allows authors to enter and keep track of information about their chara
 - Relationships between entries: characters, places, and factions in any combination with custom labels like "born in" or "mentor of"
 - Adding and removing relationships right from the cards
 - Deleting an entry also removes its relationships, with a confirmation that says how many will be lost
+- Export your entire world as a JSON file, and import it back, with validation and a confirmation before anything is replaced 
+
 
 
 ## Built with
@@ -38,10 +40,14 @@ This app allows authors to enter and keep track of information about their chara
 - Avoiding stale state when one form choice depends on another
 - Boolean logic, like negating conditions correctly
 - Using Git branches and pull requests to build features safely
+- How to create a downloadable file in the browser with Blobs and object URLs
+- How to read user selected files using async and await
+- How to validate data before trusting it
+- How to use try, catch and finally for error handling and cleanup
+- How React reuses components with the same key and why state derived from props can go stale
 
 ## Future improvements
 - A map creator and/or uploader that allows users to see their world and bring up relevant information when clicked on or hovered over
 - A feature that allows users to create a plot grid to help them map out their stories
 - AI generated art to help authors visualize their work
-- Exporting and importing a world as a backup
 - An interactive timeline that details the history and relationships of an entry

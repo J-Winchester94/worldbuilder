@@ -62,7 +62,7 @@ function App() {
     return savedLinks ? JSON.parse(savedLinks) : sampleLinks;
   });
 
-  const linkOptions={ character: characters, place: places, faction: factions };
+  const linkOptions = { character: characters, place: places, faction: factions };
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -178,21 +178,21 @@ function App() {
 
   function getLinksFor(type, id) {
     return links.filter((link) =>
-      ((link.fromType === type && link.fromId === id )|| (link.toType === type && link.toId === id)) 
+      ((link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id))
     );
   }
 
   function getLinkTexts(type, id) {
-      return getLinksFor(type, id).map((link) => {
+    return getLinksFor(type, id).map((link) => {
       const isFrom = link.fromType === type && link.fromId === id;
       const other = isFrom
         ? getEntry(link.toType, link.toId)
         : getEntry(link.fromType, link.fromId);
       const otherName = other ? other.name : "Unknown";
-      return{
-        id: link.id, 
+      return {
+        id: link.id,
         text: isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`,
-       }
+      }
     });
   }
 
@@ -213,7 +213,7 @@ function App() {
       setLinks(links.filter((link) => link.id !== id));
     }
   }
-  
+
   // Remove Every Link for a particular entry
   function removeLinksFor(type, id) {
     setLinks(links.filter((link) =>
@@ -221,11 +221,57 @@ function App() {
     ))
   }
 
+  function exportWorld() {
+    const data = {
+      version: 1, characters, places, factions, links
+    };
+    const text = JSON.stringify(data, null, 2);
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const exportLink = document.createElement("a");
+    exportLink.href = url;
+    exportLink.download = "my-world.json";
+    exportLink.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function importWorld(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const isValid =
+        Array.isArray(data.characters) &&
+        Array.isArray(data.places) &&
+        Array.isArray(data.factions) &&
+        Array.isArray(data.links);
+
+      if(!isValid) {
+        alert("that file doesn't look like a Worldbuilder world.")
+        return
+      }
+
+      if (confirm("Importing will replace your current world. Continue?")) {
+        setCharacters(data.characters);
+        setPlaces(data.places);
+        setFactions(data.factions);
+        setLinks(data.links);
+      }
+    } catch (err) {
+      alert("That file couldn't be read as Worldbuilder.");
+    } finally {
+      event.target.value="";
+    }
+  }
+
+
   return (
     <main>
       <h1>Worldbuilder</h1>
       <p>A companion for keeping track of your characters, places, and factions.</p>
-
+      <button onClick={exportWorld}>Export world</button>
+      <input type="file" accept=".json" onChange={importWorld} />
       {/* Create forms */}
       <section className="entry-section">
         <h2>Characters</h2>
