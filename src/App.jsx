@@ -62,7 +62,7 @@ function App() {
     return savedLinks ? JSON.parse(savedLinks) : sampleLinks;
   });
 
-  const linkOptions={ character: characters, place: places, faction: factions };
+  const linkOptions = { character: characters, place: places, faction: factions };
 
   useEffect(() => {
     localStorage.setItem("characters", JSON.stringify(characters));
@@ -178,21 +178,21 @@ function App() {
 
   function getLinksFor(type, id) {
     return links.filter((link) =>
-      ((link.fromType === type && link.fromId === id )|| (link.toType === type && link.toId === id)) 
+      ((link.fromType === type && link.fromId === id) || (link.toType === type && link.toId === id))
     );
   }
 
   function getLinkTexts(type, id) {
-      return getLinksFor(type, id).map((link) => {
+    return getLinksFor(type, id).map((link) => {
       const isFrom = link.fromType === type && link.fromId === id;
       const other = isFrom
         ? getEntry(link.toType, link.toId)
         : getEntry(link.fromType, link.fromId);
       const otherName = other ? other.name : "Unknown";
-      return{
-        id: link.id, 
+      return {
+        id: link.id,
         text: isFrom ? `${link.label} ${otherName}` : `${otherName} (${link.label})`,
-       }
+      }
     });
   }
 
@@ -213,7 +213,7 @@ function App() {
       setLinks(links.filter((link) => link.id !== id));
     }
   }
-  
+
   // Remove Every Link for a particular entry
   function removeLinksFor(type, id) {
     setLinks(links.filter((link) =>
@@ -221,11 +221,25 @@ function App() {
     ))
   }
 
+  function exportWorld() {
+    const data = {
+      version: 1, characters, places, factions, links
+    };
+    const text = JSON.stringify(data, null, 2);
+    const blob = new Blob([text], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const exportLink = document.createElement("a");
+    exportLink.href = url;
+    exportLink.download = "my-world.json";
+    exportLink.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <main>
       <h1>Worldbuilder</h1>
       <p>A companion for keeping track of your characters, places, and factions.</p>
-
+      <button onClick={exportWorld}>Export world</button>
       {/* Create forms */}
       <section className="entry-section">
         <h2>Characters</h2>
