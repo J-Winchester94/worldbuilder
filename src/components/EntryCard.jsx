@@ -10,6 +10,15 @@ export default function EntryCard({ id, name, label, labelName, description, det
     const [linkType, setLinkType] = useState("character");
     const [linkTargetId, setLinkTargetId] = useState("");
     const [linkLabel, setLinkLabel] = useState("");
+
+    function resetDrafts() {
+        setDraftName(name);
+        setDraftLabel(label);
+        setDraftDescription(description);
+        setDraftDetails(details || "");
+        setDraftImage(image || "");
+    }
+
     return (
         <article className="entry-card">
             {isEditing ? (
@@ -36,11 +45,7 @@ export default function EntryCard({ id, name, label, labelName, description, det
                         <button type="submit">Save</button>
                         <button className="cancel-button" type="button" onClick={() => {
                             setIsEditing(false);
-                            setDraftName(name);
-                            setDraftLabel(label);
-                            setDraftDescription(description);
-                            setDraftDetails(details || "");
-                            setDraftImage(image || "");
+                            resetDrafts();
                         }}>Cancel</button>
                     </div>
                 </form>
@@ -101,7 +106,10 @@ export default function EntryCard({ id, name, label, labelName, description, det
 
                     {!isLinking && (
                         <div className="card-actions">
-                            <button onClick={() => setIsEditing(true)}>Edit</button>
+                            <button onClick={() => {
+                                resetDrafts();
+                                setIsEditing(true);
+                            }}>Edit</button>
                             <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
                             <button className="delete-button" onClick={onDelete}>Delete</button>
                         </div>
