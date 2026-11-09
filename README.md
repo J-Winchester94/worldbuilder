@@ -51,3 +51,4 @@ This app allows authors to enter and keep track of information about their chara
 - A feature that allows users to create a plot grid to help them map out their stories
 - AI generated art to help authors visualize their work
 - An interactive timeline that details the history and relationships of an entry
+- Scrollable timeline that can be used as a hub for viewing cards and their relationships during a certain time related cards become viewable as the user scrolls

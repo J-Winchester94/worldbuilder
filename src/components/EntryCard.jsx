@@ -1,5 +1,6 @@
 import { useState } from 'react'
-export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, linkOptions, onDelete, onSave, onAddLink, onRemoveLink }) {
+import { Link } from 'react-router-dom';
+export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, type, linkOptions, onDelete, onSave, onAddLink, onRemoveLink }) {
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(name);
     const [draftLabel, setDraftLabel] = useState(label);
@@ -52,7 +53,7 @@ export default function EntryCard({ id, name, label, labelName, description, det
             ) : (
                 <>
                     {image && <img src={image} alt={name} />}
-                    <h3>{name}</h3>
+                    <h3><Link to={`/${type}/${id}`}>{name}</Link></h3>
                     <p className="label">{label}</p>
                     <p className="description">{description}</p>
                     {details && <p className="details">{detailsName}: {details} </p>}
