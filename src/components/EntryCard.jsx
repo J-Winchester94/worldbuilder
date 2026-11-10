@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom';
-export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, type, linkOptions, onDelete, onSave, onAddLink, onRemoveLink }) {
+export default function EntryCard({ id, name, label, labelName, description, details, detailsName, image, links, type, linkOptions, onDelete, onSave, onGenerate, onAddLink, onRemoveLink }) {
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(name);
     const [draftLabel, setDraftLabel] = useState(label);
@@ -11,6 +11,7 @@ export default function EntryCard({ id, name, label, labelName, description, det
     const [linkType, setLinkType] = useState("character");
     const [linkTargetId, setLinkTargetId] = useState("");
     const [linkLabel, setLinkLabel] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
 
     function resetDrafts() {
         setDraftName(name);
@@ -18,6 +19,17 @@ export default function EntryCard({ id, name, label, labelName, description, det
         setDraftDescription(description);
         setDraftDetails(details || "");
         setDraftImage(image || "");
+    }
+
+    async function handleGenerate() {
+        setIsGenerating(true);
+        try {
+            await onGenerate();
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            setIsGenerating(false);
+        }
     }
 
     return (
@@ -99,8 +111,8 @@ export default function EntryCard({ id, name, label, labelName, description, det
                             <label htmlFor={`linkLabel-${id}`}>Relationship: </label>
                             <input id={`linkLabel-${id}`} value={linkLabel} onChange={(event) => setLinkLabel(event.target.value)} placeholder="born in, rival of..." required />
                             <div className="card-actions">
-                            <button type="submit">Add</button>
-                            <button type="button" className="cancel-button" onClick={() => setIsLinking(false)}>Cancel</button>
+                                <button type="submit">Add</button>
+                                <button type="button" className="cancel-button" onClick={() => setIsLinking(false)}>Cancel</button>
                             </div>
                         </form>
                     )}
@@ -111,6 +123,14 @@ export default function EntryCard({ id, name, label, labelName, description, det
                                 resetDrafts();
                                 setIsEditing(true);
                             }}>Edit</button>
+
+                            <button
+                                className="gererate-button"
+                                onClick={handleGenerate}
+                                disabled={isGenerating || !details}
+                            >
+                                {isGenerating ? "Generating..." : "Generate image"}
+                            </button>
                             <button className="link-button" onClick={() => setIsLinking(true)}>Set Relationship</button>
                             <button className="delete-button" onClick={onDelete}>Delete</button>
                         </div>

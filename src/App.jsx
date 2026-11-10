@@ -25,6 +25,24 @@ const sampleLinks = [
   { id: 3, fromType: "character", fromId: 2, toType: "character", toId: 1, label: "mentor of" },
 ];
 
+const WORKER_URL = "https://wild-heart-955f.joe-winchester1994.workers.dev";
+
+const subjectByType = {
+  character: "characeter portrait",
+  place: "fantasty landscape, wide view",
+  faction: "heraldic emblem on a banner",
+}
+
+const aspectRatios = {
+  character: "4:5",
+  place: "16:9",
+  faction: "1:1",
+}
+
+const STYLE_WORDS = "fantasy art, highly detailed, painterly, dramatic lighting";
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 function App() {
   const [characters, setCharacters] = useState(() => {
     const savedCharacters = localStorage.getItem("characters");
@@ -187,11 +205,11 @@ function App() {
   function getLinkTexts(type, id) {
     return getLinksFor(type, id).map((link) => {
       const isFrom = link.fromType === type && link.fromId === id;
-      const otherType= isFrom ? link.toType : link.fromType;
+      const otherType = isFrom ? link.toType : link.fromType;
       const otherId = isFrom ? link.toId : link.fromId;
       const other = getEntry(otherType, otherId);
       const otherName = other ? other.name : "Unknown";
-      
+
       return {
         id: link.id,
         otherType,
@@ -271,6 +289,62 @@ function App() {
     }
   }
 
+  function buildPrompt(type, id) {
+    const entry = getEntry(type, id);
+    if (!entry) return "";
+
+    const parts = [subjectByType[type], entry.details, STYLE_WORDS];
+    return parts.filter(Boolean).join(", ");
+  }
+
+  async function generateImage(type, id) {
+    const prompt = buildPrompt(type, id);
+    const aspect_ratio = aspectRatios[type];
+
+    const startResponse = await fetch(`${WORKER_URL}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        aspect_ratio,
+        idempotencyKey: crypto.randomUUID(),
+      }),
+    });
+
+    if (!startResponse.ok) {
+      throw new Error("Couldn't start image generation.");
+    }
+
+    const started = await startResponse.json();
+
+    for (let attempt = 0; attempt < 40; attempt++) {
+      await wait(3000);
+
+      const statusResponse = await fetch(`${WORKER_URL}/status?id=${encodeURIComponent(started.request_id)}`);
+      if (!statusResponse.ok) {
+        throw new Error("Couldn't check the image's progress.");
+      }
+      const job = await statusResponse.json();
+
+      if (job.status === "completed") {
+        saveGeneratedImage(type, id, job.result.url);
+        return;
+      }
+
+      if (job.status === "failed" || job.status === "cancelled") {
+        throw new Error(job.error?.message || "Image generation failed.");
+      }
+    }
+
+    throw new Error("Image generation timed out. Please try again.");
+  }
+
+  function saveGeneratedImage(type, id, url) {
+    const setters = { character: setCharacters, place: setPlaces, faction: setFactions };
+    setters[type]((current) =>
+      current.map((entry) => (entry.id === id ? { ...entry, image: url } : entry))
+    );
+  }
 
   return (
     <Routes>
@@ -278,8 +352,11 @@ function App() {
         <main>
           <h1>Worldbuilder</h1>
           <p>A companion for keeping track of your characters, places, and factions.</p>
-          <button onClick={exportWorld}>Export world</button>
-          <input type="file" accept=".json" onChange={importWorld} />
+          <div className="card-actions">
+            <button onClick={exportWorld}>Export world</button>
+            <input id="import-file" className="visually-hidden" type="file" accept=".json" onChange={importWorld} />
+            <label htmlFor="import-file" className="import-button">Import world</label>
+          </div>
           {/* Create forms */}
           <section className="entry-section">
             <h2>Characters</h2>
@@ -319,6 +396,7 @@ function App() {
                   linkOptions={linkOptions}
                   onDelete={() => deleteCharacter(character.id)}
                   onSave={(updated) => updateCharacter(character.id, updated)}
+                  onGenerate={() => generateImage("character", character.id)}
                   onAddLink={(target) => addLink("character", character.id, target)}
                   onRemoveLink={removeLink}
                 />
@@ -364,6 +442,7 @@ function App() {
                   linkOptions={linkOptions}
                   onDelete={() => deletePlace(place.id)}
                   onSave={(updated) => updatePlace(place.id, updated)}
+                  onGenerate={() => generateImage("place", place.id)}
                   onAddLink={(target) => addLink("place", place.id, target)}
                   onRemoveLink={removeLink}
                 />
@@ -409,6 +488,7 @@ function App() {
                   linkOptions={linkOptions}
                   onDelete={() => deleteFaction(faction.id)}
                   onSave={(updated) => updateFaction(faction.id, updated)}
+                  onGenerate={() => generateImage("faction", faction.id)}
                   onAddLink={(target) => addLink("faction", faction.id, target)}
                   onRemoveLink={removeLink}
                 />
